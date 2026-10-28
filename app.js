@@ -1,4 +1,4 @@
-const CLIENT_ID = 'PASTE_YOUR_CLIENT_ID_HERE.apps.googleusercontent.com';
+const CLIENT_ID = '468853983983-hdfsmut32pa7j45fuaif2n7thg703gff.apps.googleusercontent.com';
 const SCOPE = 'https://www.googleapis.com/auth/drive.file';
 const ROOT_NAME = "Dad's Documents";
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
@@ -15,7 +15,7 @@ const store = {
 function show(id, title) {
   st.cur = id;
   document.querySelectorAll('.screen').forEach(s => s.hidden = s.id !== id);
-  $('title').textContent = title || 'My Docs';
+  $('title').textContent = title || "Dad's Docs";
   $('back').hidden = ['home', 'signin', 'done'].includes(id);
   window.scrollTo(0, 0);
 }
