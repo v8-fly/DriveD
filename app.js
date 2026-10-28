@@ -113,6 +113,32 @@ async function listFolders() {
   return (await api(`files?q=${q}&orderBy=name&pageSize=100&fields=files(id,name)`)).files;
 }
 
+async function listFiles(folderId) {
+  const q = encodeURIComponent(`'${folderId}' in parents and mimeType!='${FOLDER_MIME}' and trashed=false`);
+  return (await api(`files?q=${q}&orderBy=modifiedTime desc&pageSize=100&fields=files(id,name,mimeType,modifiedTime)`)).files;
+}
+
+function renderFiles(files) {
+  const box = $('filelist');
+  box.innerHTML = '';
+  if (!files.length) {
+    box.innerHTML = '<p class="note">No files in this folder yet.</p>';
+    return;
+  }
+  files.forEach(file => {
+    const row = document.createElement('div');
+    row.className = 'file';
+    row.innerHTML = '<svg class="i"><use href="#i-file"/></svg><span></span>';
+    const label = row.querySelector('span');
+    label.textContent = file.name;
+    const date = new Date(file.modifiedTime);
+    const meta = document.createElement('small');
+    meta.textContent = 'Saved ' + date.toLocaleDateString();
+    label.appendChild(meta);
+    box.appendChild(row);
+  });
+}
+
 async function openFolders(choose) {
   st.choose = choose;
   show('folders', choose ? 'Choose a folder' : 'My folders');
@@ -137,12 +163,15 @@ async function openFolders(choose) {
   } catch (e) { fail(e, () => openFolders(choose)); }
 }
 
-function pickFolder(f) {
+async function pickFolder(f) {
   st.folder = f;
   store.set('lastFolder', JSON.stringify(f));
   if (st.files.length) return preview();
   $('i-drive').href = 'https://drive.google.com/drive/folders/' + f.id;
   show('inside', f.name);
+  $('filelist').innerHTML = '<p class="note">Loading files…</p>';
+  try { renderFiles(await listFiles(f.id)); }
+  catch (e) { fail(e, () => pickFolder(f)); }
 }
 
 function preview() {
