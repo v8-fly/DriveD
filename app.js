@@ -4,6 +4,7 @@ const ROOT_NAME = "Dad's Documents";
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 const $ = id => document.getElementById(id);
+const quoteQuery = value => value.replace(/\\/g, '\\\\').replace(/'/g, "\\\\'");
 const st = { files: [], folder: null, root: null, choose: false, cur: '' };
 let token = null, tokenExp = 0, tc = null, waiting = null;
 
@@ -98,7 +99,7 @@ async function ensureRoot() {
   if (id) {
     try { const f = await api(`files/${id}?fields=id,trashed`); if (!f.trashed) return (st.root = id); } catch {}
   }
-  const q = encodeURIComponent(`name='${ROOT_NAME}' and mimeType='${FOLDER_MIME}' and 'root' in parents and trashed=false`);
+  const q = encodeURIComponent(`name='${quoteQuery(ROOT_NAME)}' and mimeType='${FOLDER_MIME}' and 'root' in parents and trashed=false`);
   const found = await api(`files?q=${q}&fields=files(id)`);
   id = found.files[0] ? found.files[0].id
     : (await api('files?fields=id', { method: 'POST', body: JSON.stringify({ name: ROOT_NAME, mimeType: FOLDER_MIME }) })).id;
