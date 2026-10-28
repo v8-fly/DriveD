@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#14213D">
+<title>My Docs</title>
+<link rel="manifest" href="/manifest.webmanifest">
+<link rel="icon" href="/icon-192.png">
+<link rel="apple-touch-icon" href="/icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#16202B;--muted:#46515F;--line:#D3D9E0;--soft:#EEF2F7;--blue:#0A4FD6;--amber:#B04A08;--teal:#0E6B55;--green:#1B7A2E;--red:#B3261E;--navy:#14213D}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font:400 20px/1.45 "Atkinson Hyperlegible",system-ui,sans-serif;color:var(--ink);background:#fff;min-height:100vh;padding-bottom:env(safe-area-inset-bottom)}
+header{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 10px;min-height:76px;background:var(--navy);color:#fff}
+header h1{flex:1;margin:0;font-size:28px;font-weight:700}
+.back{display:grid;place-items:center;width:56px;height:56px;border:0;border-radius:14px;background:rgba(255,255,255,.14);color:#fff}
+.back[hidden]{display:none}
+main{max-width:560px;margin:0 auto;padding:20px 16px 32px}
+.screen[hidden]{display:none}
+svg.i{width:36px;height:36px;flex:none;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+.big{display:flex;align-items:center;gap:16px;width:100%;min-height:92px;margin:0 0 16px;padding:12px 22px;border:0;border-radius:16px;color:#fff;font:700 26px/1.2 "Atkinson Hyperlegible",system-ui,sans-serif;text-align:left;cursor:pointer}
+.big:active{transform:scale(.98)}
+.big svg.i{width:44px;height:44px}
+.blue{background:var(--blue)}.amber{background:var(--amber)}.teal{background:var(--teal)}.green{background:var(--green)}
+.plain{background:var(--soft);color:var(--ink);border:2px solid var(--line)}
+.big:disabled{opacity:.55}
+:focus-visible{outline:4px solid #FFB000;outline-offset:3px}
+.lead{font-size:22px;margin:4px 0 20px}
+.note{color:var(--muted);margin:8px 0}
+.link{display:inline-block;margin:6px 0;padding:10px 0;border:0;background:none;color:var(--blue);font:700 20px "Atkinson Hyperlegible",system-ui,sans-serif;text-decoration:underline}
+.folder{display:flex;align-items:center;gap:16px;width:100%;min-height:84px;margin:0 0 12px;padding:10px 18px;border:2px solid var(--line);border-radius:16px;background:var(--soft);color:var(--ink);font:700 24px/1.2 "Atkinson Hyperlegible",system-ui,sans-serif;text-align:left}
+.folder svg.i{width:44px;height:44px;color:var(--teal)}
+.folder small{display:block;font:400 17px "Atkinson Hyperlegible",system-ui,sans-serif;color:var(--muted)}
+form{margin:0 0 20px;padding:16px;border:2px solid var(--line);border-radius:16px}
+label{display:block;margin-bottom:8px;font-weight:700}
+input[type=text]{width:100%;height:64px;margin-bottom:14px;padding:0 16px;border:2px solid var(--ink);border-radius:12px;font:400 24px "Atkinson Hyperlegible",system-ui,sans-serif}
+#pimg{display:block;width:100%;max-height:300px;margin:0 0 16px;object-fit:contain;border-radius:12px;background:var(--soft)}
+.prog{height:20px;margin:12px 0 4px;border-radius:10px;background:var(--soft);overflow:hidden}
+.prog div{width:0;height:100%;background:var(--green);transition:width .2s}
+.tick{display:grid;place-items:center;width:120px;height:120px;margin:12px auto 16px;border-radius:50%;background:var(--green);color:#fff}
+.tick svg.i{width:72px;height:72px;stroke-width:3}
+h2{margin:0 0 8px;font-size:32px}
+.center{text-align:center}
+.err h2{color:var(--red)}
+@media (prefers-reduced-motion:no-preference){.tick{animation:pop .35s ease-out}@keyframes pop{from{transform:scale(.6);opacity:0}}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+<symbol id="i-back" viewBox="0 0 24 24"><path d="M15 18l-6-6 6-6"/></symbol>
+<symbol id="i-camera" viewBox="0 0 24 24"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></symbol>
+<symbol id="i-file" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M12 18v-6M9 15h6"/></symbol>
+<symbol id="i-folder" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></symbol>
+<symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></symbol>
+<symbol id="i-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></symbol>
+<symbol id="i-up" viewBox="0 0 24 24"><path d="M12 16V4M7 9l5-5 5 5M4 20h16"/></symbol>
+</svg>
+
+<header>
+  <button id="back" class="back" aria-label="Go back" hidden><svg class="i"><use href="#i-back"/></svg></button>
+  <h1 id="title">My Docs</h1>
+</header>
+
+<main>
+  <section id="signin" class="screen" hidden>
+    <p class="lead" id="signin-text">Sign in once with your Google account. Your photos and files will be saved to your Google Drive.</p>
+    <button id="signin-btn" class="big blue"><svg class="i"><use href="#i-up"/></svg>Sign in with Google</button>
+  </section>
+
+  <section id="home" class="screen" hidden>
+    <button id="h-cam" class="big blue"><svg class="i"><use href="#i-camera"/></svg>Take photo</button>
+    <button id="h-file" class="big amber"><svg class="i"><use href="#i-file"/></svg>Add file</button>
+    <button id="h-folders" class="big teal"><svg class="i"><use href="#i-folder"/></svg>My folders</button>
+    <p id="last" class="note"></p>
+  </section>
+
+  <section id="folders" class="screen" hidden>
+    <button id="newbtn" class="big teal"><svg class="i"><use href="#i-plus"/></svg>New folder</button>
+    <form id="nform" hidden>
+      <label for="nname">Folder name</label>
+      <input id="nname" type="text" maxlength="80" autocomplete="off" placeholder="For example: Bank">
+      <p id="nerr" class="note" hidden>Please type a name first.</p>
+      <button class="big green" type="submit" style="margin:0">Create folder</button>
+    </form>
+    <div id="flist"></div>
+  </section>
+
+  <section id="inside" class="screen" hidden>
+    <button id="i-cam" class="big blue"><svg class="i"><use href="#i-camera"/></svg>Take photo</button>
+    <button id="i-file" class="big amber"><svg class="i"><use href="#i-file"/></svg>Add file</button>
+    <a id="i-drive" class="link" target="_blank" rel="noopener">See this folder in Google Drive</a>
+  </section>
+
+  <section id="preview" class="screen" hidden>
+    <img id="pimg" alt="Preview of your photo" hidden>
+    <p class="lead" id="pcount"></p>
+    <p>Saving to folder: <strong id="pfolder"></strong><br><button id="pchange" class="link">Change folder</button></p>
+    <div id="prog" class="prog" hidden><div id="bar"></div></div>
+    <p id="status" class="note" aria-live="polite"></p>
+    <button id="save" class="big green"><svg class="i"><use href="#i-up"/></svg>Save to Drive</button>
+    <button id="pcancel" class="big plain">Cancel</button>
+  </section>
+
+  <section id="done" class="screen center" hidden>
+    <div class="tick"><svg class="i"><use href="#i-check"/></svg></div>
+    <h2>Saved</h2>
+    <p class="lead" id="dfolder"></p>
+    <button id="d-more" class="big blue"><svg class="i"><use href="#i-plus"/></svg>Add another</button>
+    <button id="d-home" class="big plain">Go to home</button>
+  </section>
+
+  <section id="msg" class="screen err" hidden>
+    <h2 id="mtitle"></h2>
+    <p class="lead" id="mtext"></p>
+    <button id="retry" class="big blue">Try again</button>
+    <button id="mhome" class="big plain">Go to home</button>
+  </section>
+</main>
+
+<input id="cam" type="file" accept="image/*" capture="environment" hidden>
+<input id="pick" type="file" multiple hidden>
+
+<script src="/app.js"></script>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+</body>
+</html>
