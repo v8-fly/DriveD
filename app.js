@@ -4,7 +4,7 @@ const ROOT_NAME = "Dad's Documents";
 const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 const $ = id => document.getElementById(id);
-const quoteQuery = value => value.replace(/\\/g, '\\\\').replace(/'/g, "\\\\'");
+const quoteQuery = value => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 const st = { files: [], folder: null, root: null, choose: false, cur: '' };
 let token = null, tokenExp = 0, tc = null, waiting = null;
 
