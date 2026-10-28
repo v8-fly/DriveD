@@ -74,6 +74,13 @@ function getToken(forcePrompt) {
   });
 }
 
+function openPicker(id) {
+  if (token && Date.now() < tokenExp - 60000) return $(id).click();
+  showMsg('Please sign in again', 'Tap “Try again”, then choose your Google account. After that, tap Take photo or Add file once more.', async () => {
+    try { await getToken(true); goHome(); } catch (e) { fail(e, () => openPicker(id)); }
+  });
+}
+
 async function api(path, opt = {}, retry = true) {
   const t = await getToken();
   const r = await fetch('https://www.googleapis.com/drive/v3/' + path, {
@@ -243,8 +250,8 @@ async function boot() {
 
 $('signin-btn').onclick = async () => { try { await getToken(true); route(); } catch (e) { fail(e, () => show('signin', 'Welcome')); } };
 $('back').onclick = () => (st.cur === 'inside' ? openFolders(false) : goHome());
-$('h-cam').onclick = $('i-cam').onclick = () => $('cam').click();
-$('h-file').onclick = $('i-file').onclick = () => $('pick').click();
+$('h-cam').onclick = $('i-cam').onclick = () => openPicker('cam');
+$('h-file').onclick = $('i-file').onclick = () => openPicker('pick');
 $('h-folders').onclick = () => openFolders(false);
 $('cam').onchange = e => { took(e.target.files, true); e.target.value = ''; };
 $('pick').onchange = e => { took(e.target.files, false); e.target.value = ''; };
