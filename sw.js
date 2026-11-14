@@ -1,6 +1,7 @@
-const CACHE = 'dads-docs-v2';
+const CACHE = 'dads-docs-v3';
 const SHARE_CACHE = 'dads-docs-share';
 const APP_FILES = ['/', '/index.html', '/app.js', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
+const NETWORK_FIRST = ['/', '/index.html', '/app.js', '/manifest.webmanifest'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(APP_FILES)));
@@ -24,6 +25,22 @@ self.addEventListener('fetch', event => {
   }
 
   if (event.request.method !== 'GET' || url.origin !== self.location.origin) return;
+
+  // App shell: network-first so updates are picked up automatically, with cache fallback for offline.
+  if (NETWORK_FIRST.includes(url.pathname)) {
+    event.respondWith(
+      fetch(event.request)
+        .then(response => {
+          const copy = response.clone();
+          caches.open(CACHE).then(cache => cache.put(event.request, copy));
+          return response;
+        })
+        .catch(() => caches.match(event.request))
+    );
+    return;
+  }
+
+  // Static assets (icons): cache-first.
   event.respondWith(caches.match(event.request).then(cached => cached || fetch(event.request)));
 });
 
