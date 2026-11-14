@@ -5,7 +5,7 @@ const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 const $ = id => document.getElementById(id);
 const quoteQuery = value => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-const st = { files: [], folder: null, root: null, choose: false, cur: '' };
+const st = { files: [], names: [], folder: null, root: null, choose: false, cur: '' };
 let token = null, tokenExp = 0, tc = null, waiting = null;
 
 const store = {
@@ -22,7 +22,7 @@ function show(id, title) {
 }
 
 function goHome() {
-  st.files = []; st.folder = null; st.choose = false;
+  st.files = []; st.names = []; st.folder = null; st.choose = false;
   const last = store.get('lastSaved');
   $('last').textContent = last ? 'Last saved in: ' + last : '';
   show('home');
@@ -177,11 +177,54 @@ async function pickFolder(f) {
 function preview() {
   show('preview', 'Ready to save');
   const f = st.files[0], img = $('pimg');
-  $('pcount').textContent = st.files.length === 1 ? f.name : st.files.length + ' items';
+  $('pcount').textContent = st.files.length === 1 ? '1 item' : st.files.length + ' items';
   $('pfolder').textContent = st.folder.name;
   $('prog').hidden = true; $('status').textContent = ''; $('bar').style.width = '0';
   if (img.src) URL.revokeObjectURL(img.src);
   if (f.type.startsWith('image/')) { img.src = URL.createObjectURL(f); img.hidden = false; } else { img.removeAttribute('src'); img.hidden = true; }
+  renderNames();
+}
+
+function renderNames() {
+  const box = $('names');
+  box.innerHTML = '';
+  if (st.files.length === 1) {
+    const label = document.createElement('label');
+    label.setAttribute('for', 'fname');
+    label.textContent = 'File name';
+    const input = document.createElement('input');
+    input.id = 'fname';
+    input.type = 'text';
+    input.maxLength = 255;
+    input.autocomplete = 'off';
+    input.value = st.names[0];
+    box.appendChild(label);
+    box.appendChild(input);
+  } else {
+    st.files.forEach((f, i) => {
+      const label = document.createElement('label');
+      label.textContent = 'File ' + (i + 1);
+      const input = document.createElement('input');
+      input.type = 'text';
+      input.maxLength = 255;
+      input.autocomplete = 'off';
+      input.value = st.names[i];
+      input.dataset.index = i;
+      box.appendChild(label);
+      box.appendChild(input);
+    });
+  }
+}
+
+function readNames() {
+  if (st.files.length === 1) {
+    const input = $('fname');
+    if (input) st.names[0] = input.value;
+  } else {
+    $('names').querySelectorAll('input').forEach(input => {
+      st.names[+input.dataset.index] = input.value;
+    });
+  }
 }
 
 function took(list, camera) {
@@ -193,6 +236,7 @@ function took(list, camera) {
     files = files.map((f, i) => new File([f], `Photo ${stamp}${files.length > 1 ? ' ' + (i + 1) : ''}.jpg`, { type: f.type || 'image/jpeg' }));
   }
   st.files = files;
+  st.names = files.map(f => f.name);
   st.folder ? preview() : openFolders(true);
 }
 
@@ -210,11 +254,19 @@ async function prep(f) {
   } catch { return f; }
 }
 
-async function upload(file, parent, onp) {
+function finalName(original, edited) {
+  let name = (edited || '').trim().replace(/[\\/]/g, '');
+  if (!name) return original;
+  const ext = original.includes('.') ? original.slice(original.lastIndexOf('.')) : '';
+  if (ext && !name.includes('.')) name += ext;
+  return name;
+}
+
+async function upload(file, name, parent, onp) {
   file = await prep(file);
   const t = await getToken();
   const bd = 'docs' + Date.now();
-  const meta = JSON.stringify({ name: file.name, parents: [parent] });
+  const meta = JSON.stringify({ name: finalName(file.name, name), parents: [parent] });
   const body = new Blob([
     `--${bd}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n--${bd}\r\nContent-Type: ${file.type || 'application/octet-stream'}\r\n\r\n`,
     file, `\r\n--${bd}--`
@@ -233,16 +285,17 @@ async function upload(file, parent, onp) {
 
 async function save() {
   const btn = $('save'), n = st.files.length;
+  readNames();
   btn.disabled = true; $('prog').hidden = false;
   try {
     for (let i = 0; i < n; i++) {
       $('status').textContent = n > 1 ? `Saving ${i + 1} of ${n}…` : 'Saving…';
       $('bar').style.width = '0';
-      await upload(st.files[i], st.folder.id, p => { $('bar').style.width = p + '%'; });
+      await upload(st.files[i], st.names[i], st.folder.id, p => { $('bar').style.width = p + '%'; });
     }
     store.set('lastSaved', st.folder.name);
     $('dfolder').textContent = 'In folder: ' + st.folder.name;
-    st.files = [];
+    st.files = []; st.names = [];
     show('done', 'Saved');
   } catch (e) { fail(e, () => preview()); }
   finally { btn.disabled = false; }
@@ -259,7 +312,9 @@ async function loadShared() {
       const r = await c.match(key);
       if (!r) continue;
       const b = await r.blob();
-      st.files.push(new File([b], decodeURIComponent(r.headers.get('X-Name') || 'Shared file'), { type: b.type }));
+      const name = decodeURIComponent(r.headers.get('X-Name') || 'Shared file');
+      st.files.push(new File([b], name, { type: b.type }));
+      st.names.push(name);
       await c.delete(key);
     }
   } catch {}
