@@ -5,6 +5,10 @@ const FOLDER_MIME = 'application/vnd.google-apps.folder';
 
 const $ = id => document.getElementById(id);
 const quoteQuery = value => value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+const baseName = name => {
+  const i = name.lastIndexOf('.');
+  return i > 0 ? name.slice(0, i) : name;
+};
 const st = { files: [], names: [], folder: null, root: null, choose: false, cur: '' };
 let token = null, tokenExp = 0, tc = null, waiting = null;
 
@@ -236,7 +240,7 @@ function took(list, camera) {
     files = files.map((f, i) => new File([f], `Photo ${stamp}${files.length > 1 ? ' ' + (i + 1) : ''}.jpg`, { type: f.type || 'image/jpeg' }));
   }
   st.files = files;
-  st.names = files.map(f => f.name);
+  st.names = files.map(f => baseName(f.name));
   st.folder ? preview() : openFolders(true);
 }
 
@@ -257,9 +261,10 @@ async function prep(f) {
 function finalName(original, edited) {
   let name = (edited || '').trim().replace(/[\\/]/g, '');
   if (!name) return original;
-  const ext = original.includes('.') ? original.slice(original.lastIndexOf('.')) : '';
-  if (ext && !name.includes('.')) name += ext;
-  return name;
+  const match = original.match(/\.[A-Za-z0-9]{1,10}$/);
+  const ext = match ? match[0] : '';
+  if (!ext || name.toLowerCase().endsWith(ext.toLowerCase())) return name;
+  return name + ext;
 }
 
 async function upload(file, name, parent, onp) {
@@ -314,7 +319,7 @@ async function loadShared() {
       const b = await r.blob();
       const name = decodeURIComponent(r.headers.get('X-Name') || 'Shared file');
       st.files.push(new File([b], name, { type: b.type }));
-      st.names.push(name);
+      st.names.push(baseName(name));
       await c.delete(key);
     }
   } catch {}

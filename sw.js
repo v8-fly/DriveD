@@ -1,4 +1,4 @@
-const CACHE = 'dads-docs-v3';
+const CACHE = 'dads-docs-v4';
 const SHARE_CACHE = 'dads-docs-share';
 const APP_FILES = ['/', '/index.html', '/app.js', '/manifest.webmanifest', '/icon-192.png', '/icon-512.png'];
 const NETWORK_FIRST = ['/', '/index.html', '/app.js', '/manifest.webmanifest'];
